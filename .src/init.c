@@ -1,33 +1,13 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream> // For std::ofstream
-#include <vector>  // For std::vector
-#include <iostream>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#else
-#define EMSCRIPTEN_KEEPALIVE
-#endif
+void graph() {
 
-// Include mockturtle headers. Logic.
-#include <mockturtle/mockturtle.hpp>
-#include <mockturtle/algorithms/cut_enumeration.hpp>
-#include <mockturtle/networks/aig.hpp>
+    /*
+    
+        Create obj file.
+    
+    */
 
-// Include lorina for AIGER parsing
-#include <lorina/aiger.hpp>
-
-#include <iostream>
-#include <Eigen/Dense> // For Matrix, Vector, and solvers
-#include <kitty/dynamic_truth_table.hpp> // For truth table operations
-#include <kitty/print.hpp> // For printing truth tables
-
-EMSCRIPTEN_KEEPALIVE
-
-int logic() {
-    // Run AI cores for OBJ draw creation.
 }
 
 typedef struct {
@@ -61,7 +41,7 @@ int main(void) {
     fp = fopen("points.txt", "r");
     if (!fp) return 1;
 
-    Point2D q;
+    Point3D q;
     if (read_point_file(fp, &q) != 2) {
         fclose(fp);
         return 1;

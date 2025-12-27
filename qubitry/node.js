@@ -1,20 +1,11 @@
-main();
-
 const { shape } = "";
 
 const { obj } = "";
 
-filter = function ( vertex ) {
 
-        for( i=0;i<=vertex.length();i+ ) {
 
-              const  vertices = vertex.push( vertex.find("[") );
 
-        };
 
-        return vertices;
-
-};
 
 
 Identify = function() {
@@ -123,7 +114,6 @@ output = function() {
 
 
 };
-
 
 modules.exports = {
    output,
