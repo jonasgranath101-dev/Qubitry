@@ -1,0 +1,16 @@
+{
+  "name": "qubitry",
+  "version": "1.0.0",
+  "description": "![alt text](.src/img.gif)",
+  "main": "node.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "gcc .src/main.c .src/AI/.core/init.c -I.src/AI/.core -o main -lm",
+    "start": "node -e \"require('./qubitry/node.js').Identify()\"",
+    "ui": "node -e \"require('./qubitry/node.js').UI()\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Jonas Granath",
+  "license": "GPL-3.0 license"
+}

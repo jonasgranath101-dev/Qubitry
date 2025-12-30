@@ -83,6 +83,7 @@ UI = function () {
 
               console.log('OBJ data:', objData);
 
+<<<<<<< HEAD
               // Parse OBJ to extract vertices
 
               const lines = objData.split('\n');
@@ -177,6 +178,12 @@ UI = function () {
 
           }
 
+=======
+          }
+
+          console.log('Graph UI displayed with data and nodes.');
+
+>>>>>>> origin/main
       } catch (err) {
 
           console.error('Error displaying UI:', err);
