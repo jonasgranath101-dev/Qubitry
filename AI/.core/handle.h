@@ -32,6 +32,10 @@ void status();
 void info();
 void fetch_data(int core_id);
 
+// Core management functions
+int core_create(const char *name, float learning_rate, int epochs);
+AICore* core_get(int core_id);
+
 // Block management functions
 void block_clear();
 void block_run();
