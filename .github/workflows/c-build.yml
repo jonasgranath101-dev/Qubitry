@@ -1,0 +1,25 @@
+# This workflow will build the C code, cache/restore dependencies, build the source code and run tests
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: C Build CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build C code
+      run: |
+        gcc -o main .src/main.c AI/.core/init.c -lm
+    - name: Test C program
+      run: |
+        ./main "test object" "cube"
+        ls -la .src/example_*.obj
