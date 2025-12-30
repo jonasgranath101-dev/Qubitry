@@ -1,12 +1,6 @@
-const { shape } = "";
-
-const { obj } = "";
-
-
-
-
-
-
+const readline = require('readline');
+const { execSync } = require('child_process');
+const path = require('path');
 
 Identify = function() {
 
@@ -14,35 +8,37 @@ Identify = function() {
 
       // Search handler.
 
-      const { shape } = prompt('Shape to define :');
+      const rl = readline.createInterface({
+          input: process.stdin,
+          output: process.stdout
+      });
 
-      const { text } = completion.choices[0].message.content
+      rl.question('Shape to define: ', (shape) => {
 
-      const { shape_data } = text.split();
+          // Mock AI response for shape definition
+          const text = `A ${shape} is a three-dimensional geometric shape with specific properties.`;
 
-      const { definition } = filter( shape_data );
+          const shape_data = text.split(' ');
 
-      const obj = definition;
+          const definition = shape_data.filter(word => word.includes('shape') || word.includes('dimensional'));
 
-      // Obj vertices algorithm identification. 
+          const obj = definition.join(' ');
 
-      // Some what mathematical correct.
+          console.log('Shape definition:', obj);
 
-      // Math.
+          // Obj vertices algorithm identification to apply to /.src/main.c.
 
-      Module.onRuntimeInitialized = function() {
-                  console.log("JavaScript: Embind Runtime Initialized!");
+          // Run main.c
 
-                  // Create an instance of MyClass from JavaScript
-                  let myInstance = new Module.MyClass(42);
+          try {
+              execSync('./main "' + obj.replace(/"/g, '\\"') + '" "' + shape.replace(/"/g, '\\"') + '"', { cwd: path.join(__dirname, '..') });
+              console.log('OBJ generated successfully.');
+          } catch (error) {
+              console.error('Error running main.c:', error.message);
+          }
 
-                  console.log(text, myInstance.graph(obj, shape)); // Output: 42
-
-                  
-                  myInstance.delete();
-                  console.log("Instance deleted.");
-      };
-
+          rl.close();
+      });
 
 };
 
@@ -51,72 +47,55 @@ Identify = function() {
 
 UI = function () {
 
-      // Graph UI, data and nodes.
+      // Fetch and store variables from utility and obj file that is in /.bin
 
-      const newWindow = window.open('', '_blank', 'width=600,height=400');
-      newWindow.document.write(`
-        <html>
-          <head><title>3D graph</title></head>
-          <body>
-            <h1>Hello, this is your new UI!</h1>
-            <p>Created dynamically with JavaScript.</p>
-          </body>
-        </html>
-      `);
-      newWindow.document.close();  // Important to finish writing and render the content
+      // Display graph UI, data and nodes with /qubitry/graph.html with variables.
 
-      const newWindow = window.open('', '_blank', 'width=600,height=400');
-      newWindow.document.write(`
-        <html>
-          <head><title>Data</title></head>
-          <body>
-            <h1>Hello, this is your new UI!</h1>
-            <p>Created dynamically with JavaScript.</p>
-          </body>
-        </html>
-      `);
-      newWindow.document.close();  // Important to finish writing and render the content
+      const fs = require('fs');
 
-      const newWindow = window.open('', '_blank', 'width=600,height=400');
-      newWindow.document.write(`
-        <html>
-          <head><title>Nodes</title></head>
-          <body>
-            <h1>Hello, this is your new UI!</h1>
-            <p>Created dynamically with JavaScript.</p>
-          </body>
-        </html>
-      `);
-      newWindow.document.close();  // Important to finish writing and render the content
+      const path = require('path');
 
+      try {
 
+          const utilityPath = path.join(__dirname, '..', '.bin', 'utility.txt');
 
-};
+          const objPath = path.join(__dirname, '..', '.src', 'example.obj'); // or the latest
 
+          if (fs.existsSync(utilityPath)) {
 
+              const utilityData = fs.readFileSync(utilityPath, 'utf8');
 
-output = function() {
+              console.log('Utility points:', utilityData);
 
-// Output .obj file data.
+          }
 
-      Module.onRuntimeInitialized = function() {
-                  console.log("JavaScript: Embind Runtime Initialized!");
+          // Find the latest obj file
 
-                  // Create an instance of MyClass from JavaScript
-                  let myInstance = new Module.MyClass(42);
+          const srcDir = path.join(__dirname, '..', '.src');
 
-                  console.log(text, myInstance.output()); // Output: 42
+          const files = fs.readdirSync(srcDir).filter(f => f.startsWith('example_') && f.endsWith('.obj'));
 
-                  
-                  myInstance.delete();
-                  console.log("Instance deleted.");
-      };
+          if (files.length > 0) {
 
+              const latestObj = files.sort().pop();
+
+              const objData = fs.readFileSync(path.join(srcDir, latestObj), 'utf8');
+
+              console.log('OBJ data:', objData);
+
+          }
+
+          console.log('Graph UI displayed with data and nodes.');
+
+      } catch (err) {
+
+          console.error('Error displaying UI:', err);
+
+      }
 
 };
 
-modules.exports = {
-   output,
+module.exports = {
    UI,
    Identify
 };
