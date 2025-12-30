@@ -83,9 +83,99 @@ UI = function () {
 
               console.log('OBJ data:', objData);
 
-          }
+              // Parse OBJ to extract vertices
 
-          console.log('Graph UI displayed with data and nodes.');
+              const lines = objData.split('\n');
+
+              const vertices = [];
+
+              lines.forEach(line => {
+
+                  if (line.startsWith('v ')) {
+
+                      const parts = line.trim().split(/\s+/);
+
+                      if (parts.length >= 4) {
+
+                          vertices.push({
+
+                              x: parseFloat(parts[1]),
+
+                              y: parseFloat(parts[2]),
+
+                              z: parseFloat(parts[3])
+
+                          });
+
+                      }
+
+                  }
+
+              });
+
+              console.log('Parsed vertices:', vertices);
+
+              // Update graph.html with vertices
+
+              const graphHtmlPath = path.join(__dirname, 'graph.html');
+
+              let graphHtml = fs.readFileSync(graphHtmlPath, 'utf8');
+
+              // Extract x, y, z arrays
+
+              const x = vertices.map(v => v.x);
+
+              const y = vertices.map(v => v.y);
+
+              const z = vertices.map(v => v.z);
+
+              // Replace the trace in script
+
+              const newTrace = `const trace = {
+
+    x: [${x.join(', ')}],
+
+    y: [${y.join(', ')}],
+
+    z: [${z.join(', ')}],
+
+    mode: 'markers',
+
+    type: 'scatter3d',
+
+    marker: { size: 4 }
+
+};`;
+
+              // Find the old trace and replace
+
+              const traceRegex = /const trace = \{[\s\S]*?\};/;
+
+              graphHtml = graphHtml.replace(traceRegex, newTrace);
+
+              fs.writeFileSync(graphHtmlPath, graphHtml);
+
+              console.log('Graph HTML updated with OBJ data.');
+
+              // Open the graph in browser
+
+              const { exec } = require('child_process');
+
+              exec('xdg-open ' + graphHtmlPath, (err) => {
+
+                  if (err) {
+
+                      console.log('Could not open browser, graph updated at:', graphHtmlPath);
+
+                  }
+
+              });
+
+          } else {
+
+              console.log('No OBJ files found.');
+
+          }
 
       } catch (err) {
 

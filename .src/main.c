@@ -2,7 +2,7 @@
 
 // AI handle.
 
-#include "AI/.core/handle.h"
+#include "../AI/.core/handle.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -66,7 +66,7 @@ void graph(const char* obj, const char* shape) {
     // Generate new OBJ file
     time_t t = time(NULL);
     char filename[50];
-    sprintf(filename, "example_%ld.obj", t);
+    sprintf(filename, ".src/example_%ld.obj", t);
     FILE *fp = fopen(filename, "w");
     if (!fp) return;
     FILE *fp_points = fopen(".bin/utility.txt", "w");
