@@ -17,7 +17,7 @@ Qubitry is an AI-powered 3D shape generation system that creates geometric objec
 
 ## Screenshots
 
-![alt text](.bin/Screenshot2025-12-313.39.28AM.png)
+![alt text](.bin/Screenshot.png)
 
 ## Prerequisites
 
