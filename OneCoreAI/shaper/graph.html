@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>AI 3D Shape Generator</title>
+        <meta charset="utf-8">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                background-color: #f0f0f0;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            h1 {
+                color: #333;
+                text-align: center;
+            }
+            #plot {
+                width: 100%;
+                height: 600px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
+            .info {
+                margin-top: 20px;
+                padding: 10px;
+                background: #e8f4fd;
+                border-radius: 5px;
+            }
+        </style>
+        <div id="plot"></div>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script>
+        // Geometry data placeholder. This line is replaced by Node.js.
+        // __GEOMETRY_DATA_PLACEHOLDER__
+const GEOMETRY_POINTS = [{"x":2.92,"y":0,"z":-5.1684},{"x":2.36233,"y":1.716333,"z":-5.1684},{"x":0.90233,"y":2.777085,"z":-5.1684},{"x":-0.90233,"y":2.777085,"z":-5.1684},{"x":-2.36233,"y":1.716333,"z":-5.1684},{"x":-2.92,"y":0,"z":-5.1684},{"x":-2.362329,"y":-1.716333,"z":-5.1684},{"x":-0.90233,"y":-2.777085,"z":-5.1684},{"x":0.90233,"y":-2.777085,"z":-5.1684},{"x":2.362329,"y":-1.716333,"z":-5.1684},{"x":0,"y":0,"z":5.1684}];
+
+        const trace = {
+            x: GEOMETRY_POINTS ? GEOMETRY_POINTS.map(p => p.x) : [],
+            y: GEOMETRY_POINTS ? GEOMETRY_POINTS.map(p => p.y) : [],
+            z: GEOMETRY_POINTS ? GEOMETRY_POINTS.map(p => p.z) : [],
+            mode: 'markers',
+            type: 'scatter3d',
+            marker: {
+                size: 3,
+                color: 'blue',
+                opacity: 0.8
+            },
+            name: 'AI Generated Shape'
+        };
+
+        const layout = {
+            title: 'AI-Powered 3D Shape Generator',
+            scene: {
+                xaxis: { title: 'X' },
+                yaxis: { title: 'Y' },
+                zaxis: { title: 'Z' },
+                camera: {
+                    eye: { x: 1.5, y: 1.5, z: 1.5 }
+                }
+            },
+            margin: { l: 0, r: 0, t: 40, b: 0 }
+        };
+
+        Plotly.newPlot('plot', [trace], layout);
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>AI 3D Shape Generator</h1>
+            <div class="info">
+                <h3>About</h3>
+                <p>This tool uses OneCoreAI to generate advanced 3D shapes. The AI system analyzes your description and generates appropriate geometric parameters for creating complex shapes like spheres, cylinders, cones, tori, and more.</p>
+                <p><strong>Supported shapes:</strong> cube, sphere, cylinder, cone, torus, octahedron</p>
+                <p><strong>How it works:</strong> Multiple AI cores are trained to determine optimal scale and shape parameters based on your input description.</p>
+            </div>
+        </div>
+    </body>
+</html>
