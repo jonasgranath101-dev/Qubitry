@@ -2,7 +2,7 @@
 
 // AI handle.
 
-#include "../AI/.core/handle.h"
+#include "../OneCoreAI/.core/handle.h"
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,6 +21,102 @@ int write_point_file(FILE *fp, const Point3D *p) {
 
 int read_point_file(FILE *fp, Point3D *p) {
     return fscanf(fp, "%lf %lf %lf", &p->x, &p->y, &p->z);      /* returns 3 on success */
+}
+
+// Parse a string of coordinates into a list of points.
+// Supported formats:
+// - "x,y,z;x,y,z;..." (semicolon-separated)
+// - "x y z\n..." (whitespace-separated triples)
+// - Mixed commas and whitespace.
+// Returns the number of points parsed (0 on failure).
+int parse_points(const char *input, Point3D **out_points, int *out_count) {
+    if (!input || !out_points || !out_count) return 0;
+
+    char *buf = strdup(input);
+    if (!buf) return 0;
+
+    size_t max_points = 64;
+    Point3D *points = malloc(sizeof(Point3D) * max_points);
+    if (!points) {
+        free(buf);
+        return 0;
+    }
+
+    int count = 0;
+    // Split on semicolons or newlines first
+    char *segment = strtok(buf, ";\n");
+    while (segment) {
+        // Trim leading/trailing whitespace
+        while (*segment == ' ' || *segment == '\t') segment++;
+        size_t len = strlen(segment);
+        while (len && (segment[len - 1] == ' ' || segment[len - 1] == '\t')) {
+            segment[--len] = '\0';
+        }
+
+        if (len == 0) {
+            segment = strtok(NULL, ";\n");
+            continue;
+        }
+
+        // Replace commas with spaces for easier parsing
+        for (char *p = segment; *p; ++p) {
+            if (*p == ',') *p = ' ';
+        }
+
+        // Try to parse exactly three numbers first
+        double x, y, z;
+        if (sscanf(segment, "%lf %lf %lf", &x, &y, &z) == 3) {
+            if (count >= (int)max_points) {
+                max_points *= 2;
+                Point3D *tmp = realloc(points, sizeof(Point3D) * max_points);
+                if (!tmp) break;
+                points = tmp;
+            }
+            points[count].x = x;
+            points[count].y = y;
+            points[count].z = z;
+            count++;
+        } else {
+            // Fallback: parse any whitespace-delimited numbers and group them in triples
+            double nums[1024];
+            int num_count = 0;
+            char *tok = strtok(segment, " \t");
+            while (tok && num_count < (int)(sizeof(nums) / sizeof(nums[0]))) {
+                char *end;
+                double v = strtod(tok, &end);
+                if (end == tok) break;
+                nums[num_count++] = v;
+                tok = strtok(NULL, " \t");
+            }
+            for (int i = 0; i + 2 < num_count; i += 3) {
+                if (count >= (int)max_points) {
+                    max_points *= 2;
+                    Point3D *tmp = realloc(points, sizeof(Point3D) * max_points);
+                    if (!tmp) break;
+                    points = tmp;
+                }
+                points[count].x = nums[i];
+                points[count].y = nums[i + 1];
+                points[count].z = nums[i + 2];
+                count++;
+            }
+        }
+
+        segment = strtok(NULL, ";\n");
+    }
+
+    free(buf);
+
+    if (count == 0) {
+        free(points);
+        *out_points = NULL;
+        *out_count = 0;
+        return 0;
+    }
+
+    *out_points = points;
+    *out_count = count;
+    return 1;
 }
 
 void graph(const char* obj, const char* shape);
@@ -63,6 +159,7 @@ void graph(const char* obj, const char* shape) {
     block_run();
     AICore* core = core_get(1);
     float scale = core ? core->weight : 1.0f;
+
     // Generate new OBJ file
     time_t t = time(NULL);
     char filename[50];
@@ -71,7 +168,57 @@ void graph(const char* obj, const char* shape) {
     if (!fp) return;
     FILE *fp_points = fopen(".bin/utility.txt", "w");
     if (!fp_points) { fclose(fp); return; }
-    if (strstr(shape, "cube")) {
+
+    // Handle custom coordinate input: allow a list of points provided via the first argument.
+    // Example: "0,0,0; 1,0,0; 1,1,0" or "0 0 0\n1 0 0\n1 1 0"
+    int use_custom = 0;
+    Point3D *custom_points = NULL;
+    int custom_count = 0;
+
+    if (obj && (strstr(shape, "coord") || strstr(shape, "custom") || strchr(obj, ';') || strchr(obj, ','))) {
+        if (parse_points(obj, &custom_points, &custom_count) && custom_count > 0) {
+            use_custom = 1;
+        }
+    }
+
+    if (use_custom) {
+        // Normalize and scale custom points relative to the learned AI weight.
+        double minx = custom_points[0].x, maxx = custom_points[0].x;
+        double miny = custom_points[0].y, maxy = custom_points[0].y;
+        double minz = custom_points[0].z, maxz = custom_points[0].z;
+        for (int i = 1; i < custom_count; i++) {
+            if (custom_points[i].x < minx) minx = custom_points[i].x;
+            if (custom_points[i].x > maxx) maxx = custom_points[i].x;
+            if (custom_points[i].y < miny) miny = custom_points[i].y;
+            if (custom_points[i].y > maxy) maxy = custom_points[i].y;
+            if (custom_points[i].z < minz) minz = custom_points[i].z;
+            if (custom_points[i].z > maxz) maxz = custom_points[i].z;
+        }
+        double range_x = maxx - minx;
+        double range_y = maxy - miny;
+        double range_z = maxz - minz;
+        double max_range = range_x;
+        if (range_y > max_range) max_range = range_y;
+        if (range_z > max_range) max_range = range_z;
+        if (max_range < 1e-6) max_range = 1.0;
+
+        double target_scale = scale;
+        if (target_scale <= 0.0f) target_scale = 1.0f;
+
+        for (int i = 0; i < custom_count; i++) {
+            // Normalize to -0.5..0.5 then scale
+            double nx = (custom_points[i].x - minx) / max_range - 0.5;
+            double ny = (custom_points[i].y - miny) / max_range - 0.5;
+            double nz = (custom_points[i].z - minz) / max_range - 0.5;
+            double sx = nx * target_scale * 2.0;
+            double sy = ny * target_scale * 2.0;
+            double sz = nz * target_scale * 2.0;
+            fprintf(fp, "v %f %f %f\n", sx, sy, sz);
+            fprintf(fp_points, "%f %f %f\n", sx, sy, sz);
+        }
+
+        free(custom_points);
+    } else if (strstr(shape, "cube")) {
         // Cube vertices
         float vertices[8][3] = {
             {-1*scale,-1*scale,-1*scale}, {-1*scale,-1*scale,1*scale}, {-1*scale,1*scale,-1*scale}, {-1*scale,1*scale,1*scale},
@@ -120,6 +267,7 @@ void graph(const char* obj, const char* shape) {
             fprintf(fp, "f %d %d %d %d\n", faces[i][0], faces[i][1], faces[i][2], faces[i][3]);
         }
     }
+
     fclose(fp);
     fclose(fp_points);
 }

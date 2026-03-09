@@ -29,25 +29,22 @@ Qubitry is an AI-powered 3D shape generation system that creates geometric objec
 
 1. Compile the C core:
 ```bash
-gcc -o main .src/main.c AI/.core/init.c -lm
+gcc -DONECOREAI_NO_MAIN -o main .src/main.c OneCoreAI/.core/init.c -lm
 ```
 
 ## Usage
 
-### Generate 3D Shapes
+### Generate 3D Shapes (Predefined or Custom Coordinates)
 
-Run the compiled program with shape parameters:
-```bash
-./main "shape description" "shape_type"
-```
+Run the compiled program with a shape type or a list of coordinates.
 
-Examples:
 ```bash
-# Generate a cube
+# Predefined shapes
 ./main "geometric cube" "cube"
-
-# Generate a sphere
 ./main "perfect sphere" "sphere"
+
+# Custom coordinates (semicolon-separated triples)
+./main "0,0,0; 1,0,0; 1,1,0; 0,1,0" "custom"
 ```
 
 The program will:
@@ -63,7 +60,7 @@ node qubitry/node.js
 ```
 
 The UI will:
-- Prompt for shape identification
+- Prompt for a shape name or a list of coordinates
 - Generate OBJ files based on input
 - Update the 3D graph visualization
 - Open the graph in your default browser
@@ -71,7 +68,7 @@ The UI will:
 ## Project Structure
 
 - `.src/main.c` - Main C program for shape generation
-- `AI/.core/` - AI core implementation and training logic
+- `OneCoreAI/` - AI core implementation and training logic
 - `qubitry/node.js` - Node.js UI for shape identification and graphing
 - `qubitry/graph.html` - 3D visualization interface
 - `.bin/` - Generated utility files

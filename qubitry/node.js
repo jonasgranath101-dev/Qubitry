@@ -57,12 +57,24 @@ function updateGraphHtml(vertices) {
     const placeholder = '// __GEOMETRY_DATA_PLACEHOLDER__';
     const injected = `const GEOMETRY_POINTS = ${geometryJson};`;
 
-    if (!graphHtml.includes(placeholder)) {
+    const placeholderIndex = graphHtml.indexOf(placeholder);
+    if (placeholderIndex === -1) {
         console.warn('Geometry placeholder not found in graph.html, skipping update.');
         return;
     }
 
-    graphHtml = graphHtml.replace(placeholder, `${placeholder}\n${injected}`);
+    // Replace any previous injected geometry block, keeping file structure stable.
+    const afterPlaceholder = graphHtml.slice(placeholderIndex + placeholder.length);
+    const traceIndex = afterPlaceholder.indexOf('const trace');
+    if (traceIndex === -1) {
+        console.warn('Could not find trace definition in graph.html.');
+        return;
+    }
+
+    const before = graphHtml.slice(0, placeholderIndex + placeholder.length);
+    const after = afterPlaceholder.slice(traceIndex);
+
+    graphHtml = `${before}\n${injected}\n\n${after}`;
     fs.writeFileSync(graphHtmlPath, graphHtml);
 
     exec(`xdg-open "${graphHtmlPath}"`, err => {
@@ -78,18 +90,25 @@ Identify = function () {
         output: process.stdout
     });
 
-    rl.question('Shape to define: ', shape => {
-        const text = `A ${shape} is a three-dimensional geometric shape with specific properties.`;
-        const tokens = text.split(' ');
-        const definition = tokens.filter(
-            word => word.includes('shape') || word.includes('dimensional')
-        );
-        const objDescription = definition.join(' ');
+    rl.question(
+        'Enter shape name OR a list of coordinates (e.g. "cube" OR "0,0,0;1,0,0;1,1,0"): ',
+        input => {
+            const trimmed = input.trim();
+            if (!trimmed) {
+                console.log('No input provided. Exiting.');
+                rl.close();
+                return;
+            }
 
-        console.log('Shape definition:', objDescription);
-        runCore(objDescription, shape);
-        rl.close();
-    });
+            const isCoords = trimmed.includes(',') || trimmed.includes(';');
+            const shapeType = isCoords ? 'custom' : trimmed;
+            const objDescription = isCoords ? trimmed : `A ${trimmed} is a three-dimensional geometric shape.`;
+
+            console.log('Running with:', isCoords ? 'coordinates' : 'shape', shapeType);
+            runCore(objDescription, shapeType);
+            rl.close();
+        }
+    );
 };
 
 UI = function () {
@@ -120,3 +139,8 @@ module.exports = {
     UI,
     Identify
 };
+
+// Run the interactive UI when the script is invoked directly.
+if (require.main === module) {
+    UI();
+}

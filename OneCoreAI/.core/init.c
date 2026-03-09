@@ -646,6 +646,7 @@ void hex_list() {
     printf("Bit 7: Zero gradients\n");
 }
 
+#ifndef ONECOREAI_NO_MAIN
 int main(int argc, char *argv[]) {
     printf("Welcome to OneCoreAI - Multiple AI Core Blocks System\n");
     printf("Type 'help' for available commands.\n\n");
@@ -787,3 +788,4 @@ int main(int argc, char *argv[]) {
     printf("Goodbye!\n");
     return 0;
 }
+#endif

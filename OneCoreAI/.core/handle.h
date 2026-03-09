@@ -68,4 +68,8 @@ void block_status();
 void block_config();
 void block_location(int core_id);
 
+// Core management helpers
+AICore* core_get(int core_id);
+int core_create(const char *name, float learning_rate, int epochs);
+
 #endif
