@@ -34,9 +34,31 @@ gcc -DONECOREAI_NO_MAIN -o main .src/main.c OneCoreAI/.core/init.c -lm
 
 ## Usage
 
-### Generate 3D Shapes (Predefined or Custom Coordinates)
+### Launch Interactive Menu (Recommended)
 
-Run the compiled program with a shape type or a list of coordinates.
+```bash
+cd OneCoreAI/shaper && make run
+```
+
+Choose from the menu: generate custom shapes, run demos, view outputs, or access documentation.
+
+The program will:
+1. Train an AI core with visualization
+2. Generate an OBJ file
+3. Create utility points file and update the 3D graph visualization
+
+### Quick Commands
+
+```bash
+make demo               # Generate 5 example shapes
+make sphere             # Quick sphere generator
+make cube               # Quick cube generator
+make torus              # Quick torus generator
+make view               # List all generated shapes
+make help               # Show all available commands
+```
+
+### Custom Generation (Predefined Shapes or Custom Coordinates)
 
 ```bash
 # Predefined shapes
@@ -47,13 +69,6 @@ Run the compiled program with a shape type or a list of coordinates.
 ./main "0,0,0; 1,0,0; 1,1,0; 0,1,0" "custom"
 ```
 
-The program will:
-1. Train an AI core with visualization
-2. Generate an OBJ file in the `.src/` directory
-3. Create utility points file in `.bin/utility.txt`
-
-### Interactive UI
-
 Launch the Node.js interface for shape identification and visualization:
 ```bash
 node qubitry/node.js
@@ -62,7 +77,6 @@ node qubitry/node.js
 The UI will:
 - Prompt for a shape name or a list of coordinates
 - Generate OBJ files based on input
-- Update the 3D graph visualization
 - Open the graph in your default browser
 
 ## Project Structure
